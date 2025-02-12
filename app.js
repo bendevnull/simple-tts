@@ -18,6 +18,9 @@ const wss = new WebSocketServer({ server });
 
 const ComfyJS = require("comfy.js");
 
+const jwt = require('jsonwebtoken');
+const secretKey = 'your_secret_key'; // Replace with your actual secret key
+
 var nowPlaying = null;
 
 const queue = [];
@@ -71,30 +74,19 @@ function processQueue() {
 }
 
 function auth(req, res, next) {
-    const auth = req.headers['authorization'];
-    if (!auth) {
-        res.set('WWW-Authenticate', 'Basic realm="Secure Area"');
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) {
         return res.status(401).send('Authentication required.');
     }
 
-    if (!fs.existsSync('users.json')) {
-        return res.status(500).send('Authentication database not initialized. Contact the server administrator.');
-    }
-
-    const users = JSON.parse(fs.readFileSync('users.json', 'utf8'));
-
-    if (users.length === 0) {
-        return res.status(500).send('No users found in the authentication database. Contact the server administrator.');
-    }
-
-    const [username, password] = Buffer.from(auth.split(' ')[1], 'base64').toString().split(':');
-    const user = users.find(user => user.username === username && user.password === password);
-
-    if (!user) {
-        return res.status(403).send('Forbidden');
-    }
-
-    next();
+    const token = authHeader.split(' ')[1];
+    jwt.verify(token, secretKey, (err, user) => {
+        if (err) {
+            return res.status(403).send('Forbidden');
+        }
+        req.user = user;
+        next();
+    });
 }
 
 function generateTTS(text) {
@@ -203,7 +195,8 @@ app.post('/api/login', (req, res) => {
             return res.status(403).send('Invalid username or password.');
         }
 
-        res.status(200).send('Login successful.');
+        const token = jwt.sign({ username: user.username }, secretKey, { expiresIn: '12h' });
+        res.status(200).json({ token: token });
     });
 });
 

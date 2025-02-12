@@ -76,7 +76,7 @@
             const headers = new Headers();
             headers.set('Authorization', 'Basic ' + btoa(username + ":" + password));
 
-            fetch('/restart', {
+            fetch('/api/restart', {
                 method: 'POST',
                 headers: headers
             })

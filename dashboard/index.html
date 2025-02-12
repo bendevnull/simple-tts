@@ -54,8 +54,8 @@
     <div class="container">
         <h1>Dashboard</h1>
         <div id="auth-form">
-            <input type="text" id="username" placeholder="Username">
-            <input type="password" id="password" placeholder="Password">
+            <input type="text" id="username" placeholder="Username" onkeydown="submitOnEnter(event)">
+            <input type="password" id="password" placeholder="Password" onkeydown="submitOnEnter(event)">
             <button onclick="login()">Login</button>
         </div>
         <div id="dashboard" style="display: none;">
@@ -178,6 +178,12 @@
                     console.error('Error:', error);
                     alert('An error occurred while loading users.');
                 });
+        }
+
+        function submitOnEnter(event) {
+            if (event.key === 'Enter') {
+                login();
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {

@@ -161,7 +161,7 @@ wss.on('close', () => {
 app.use('/', express.static('static'));
 
 app.get('/dashboard', auth, (req, res) => {
-    res.sendFile(__dirname + '/static/dashboard.html');
+    res.sendFile(__dirname + '/dashboard/index.html');
 });
 
 app.post('/api/restart', auth, (req, res) => {

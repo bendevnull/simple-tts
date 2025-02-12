@@ -70,6 +70,33 @@ function processQueue() {
     }
 }
 
+function auth(req, res, next) {
+    const auth = req.headers['authorization'];
+    if (!auth) {
+        res.set('WWW-Authenticate', 'Basic realm="Secure Area"');
+        return res.status(401).send('Authentication required.');
+    }
+
+    if (!fs.existsSync('users.json')) {
+        return res.status(500).send('Authentication database not initialized. Contact the server administrator.');
+    }
+
+    const users = JSON.parse(fs.readFileSync('users.json', 'utf8'));
+
+    if (users.length === 0) {
+        return res.status(500).send('No users found in the authentication database. Contact the server administrator.');
+    }
+
+    const [username, password] = Buffer.from(auth.split(' ')[1], 'base64').toString().split(':');
+    const user = users.find(user => user.username === username && user.password === password);
+
+    if (!user) {
+        return res.status(403).send('Forbidden');
+    }
+
+    next();
+}
+
 function generateTTS(text) {
     if (checkForBannedWords(text)) {
         console.log("Found banned word")
@@ -133,6 +160,17 @@ wss.on('close', () => {
 
 app.use('/', express.static('static'));
 
+app.get('/dashboard', auth, (req, res) => {
+    res.sendFile(__dirname + '/static/dashboard.html');
+});
+
+app.post('/api/restart', auth, (req, res) => {
+    res.send('Restarting server...');
+    setTimeout(() => {
+        process.exit(0);
+    }, 1000);
+})
+
 app.post('/tts', (req, res) => {
     res.send('Text-to-speech endpoint');
     req.on('data', async (data) => {
@@ -157,10 +195,10 @@ server.listen(3000, () => {
         generateTTS(`${user} cheered ${bits} ${bits == 1 ? "bit" : "bits" } with message: ${removeCheerMessage(message)}`);
     }
 
-    ComfyJS.onChat = (user, message, flags, self, extra) => {
-        console.log(`Chat: ${user} said "${message}"`);
-        // generateTTS(`${user} said: ${message}`);
-    }
+    // ComfyJS.onChat = (user, message, flags, self, extra) => {
+    //     console.log(`Chat: ${user} said "${message}"`);
+    //     // generateTTS(`${user} said: ${message}`);
+    // }
 });
 
 // clean mp3 files

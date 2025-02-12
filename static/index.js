@@ -1,5 +1,3 @@
-
-
 function socketConnect() {
     let ws = new WebSocket(`ws://${window.location.host}`);
     let pingInterval = null;
@@ -68,22 +66,22 @@ function socketConnect() {
     }
 }
 
-async function testTTS(text) {
-    // post to /tts endpoint
-    await fetch('/tts', {
-        method: 'POST',
-        body: text
-    }).then((response) => {
-        console.log('Text-to-speech request sent');
-    }).catch((error) => {
-        console.error(error);
-    });
-}
+// async function testTTS(text) {
+//     // post to /tts endpoint
+//     await fetch('/tts', {
+//         method: 'POST',
+//         body: text
+//     }).then((response) => {
+//         console.log('Text-to-speech request sent');
+//     }).catch((error) => {
+//         console.error(error);
+//     });
+// }
 
-async function testMassTTS(textArray) {
-    for (let text of textArray) {
-        await testTTS(text);
-    }
-}
+// async function testMassTTS(textArray) {
+//     for (let text of textArray) {
+//         await testTTS(text);
+//     }
+// }
 
 socketConnect();

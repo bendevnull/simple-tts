@@ -126,17 +126,20 @@
         }
 
         function createUser() {
-            const username = document.getElementById('new-username').value;
-            const password = document.getElementById('new-password').value;
+            const newUsername = document.getElementById('new-username').value;
+            const newPassword = document.getElementById('new-password').value;
 
-            if (username && password) {
+            if (newUsername && newPassword) {
+                const username = sessionStorage.getItem('username');
+                const password = sessionStorage.getItem('password');
                 const headers = new Headers();
                 headers.set('Content-Type', 'application/json');
+                headers.set('Authorization', 'Basic ' + btoa(username + ":" + password));
 
                 fetch('/api/users', {
                     method: 'POST',
                     headers: headers,
-                    body: JSON.stringify({ username: username, password: password })
+                    body: JSON.stringify({ username: newUsername, password: newPassword })
                 })
                 .then(response => {
                     if (response.ok) {
@@ -156,6 +159,11 @@
         }
 
         function loadUsers() {
+            const username = sessionStorage.getItem('username');
+            const password = sessionStorage.getItem('password');
+            const headers = new Headers();
+            headers.set('Authorization', 'Basic ' + btoa(username + ":" + password));
+            
             fetch('/api/users')
                 .then(response => response.json())
                 .then(users => {

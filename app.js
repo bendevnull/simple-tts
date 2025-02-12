@@ -160,7 +160,7 @@ wss.on('close', () => {
 
 app.use('/', express.static('static'));
 
-app.get('/dashboard', auth, (req, res) => {
+app.get('/dashboard', (req, res) => {
     res.sendFile(__dirname + '/dashboard/index.html');
 });
 
@@ -176,6 +176,72 @@ app.post('/tts', (req, res) => {
     req.on('data', async (data) => {
         console.log(`TTS: Received data => ${data}`);
         generateTTS(data.toString());
+    });
+});
+
+app.post('/api/login', (req, res) => {
+    let body = '';
+    req.on('data', chunk => {
+        body += chunk.toString();
+    });
+    req.on('end', () => {
+        const { username, password } = JSON.parse(body);
+
+        if (!fs.existsSync('users.json')) {
+            return res.status(500).send('Authentication database not initialized. Contact the server administrator.');
+        }
+
+        const users = JSON.parse(fs.readFileSync('users.json', 'utf8'));
+
+        if (users.length === 0) {
+            return res.status(500).send('No users found in the authentication database. Contact the server administrator.');
+        }
+
+        const user = users.find(user => user.username === username && user.password === password);
+
+        if (!user) {
+            return res.status(403).send('Invalid username or password.');
+        }
+
+        res.status(200).send('Login successful.');
+    });
+});
+
+app.get('/api/users', auth, (req, res) => {
+    if (!fs.existsSync('users.json')) {
+        return res.status(500).send('Authentication database not initialized. Contact the server administrator.');
+    }
+
+    const users = JSON.parse(fs.readFileSync('users.json', 'utf8'));
+    res.status(200).json(users);
+});
+
+app.post('/api/users', auth, (req, res) => {
+    let body = '';
+    req.on('data', chunk => {
+        body += chunk.toString();
+    });
+    req.on('end', () => {
+        const { username, password } = JSON.parse(body);
+
+        if (!username || !password) {
+            return res.status(400).send('Username and password are required.');
+        }
+
+        if (!fs.existsSync('users.json')) {
+            fs.writeFileSync('users.json', JSON.stringify([]));
+        }
+
+        const users = JSON.parse(fs.readFileSync('users.json', 'utf8'));
+
+        if (users.find(user => user.username === username)) {
+            return res.status(400).send('User already exists.');
+        }
+
+        users.push({ username: username, password: password });
+        fs.writeFileSync('users.json', JSON.stringify(users, null, 2));
+
+        res.status(201).send('User created successfully.');
     });
 });
 

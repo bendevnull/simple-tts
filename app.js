@@ -21,6 +21,8 @@ const ComfyJS = require("comfy.js");
 const jwt = require('jsonwebtoken');
 const secretKey = 'your_secret_key'; // Replace with your actual secret key
 
+const { exec } = require('child_process');
+
 var nowPlaying = null;
 
 const queue = [];
@@ -89,6 +91,13 @@ function auth(req, res, next) {
     });
 }
 
+function restart(req, res) {
+    res.send('Restarting server...');
+    setTimeout(() => {
+        process.exit(0);
+    }, 1000);
+}
+
 function generateTTS(text) {
     if (checkForBannedWords(text)) {
         console.log("Found banned word")
@@ -120,6 +129,16 @@ function checkForBannedWords(message) {
 
 function removeCheerMessage(message) {
     return message.replace(/Cheer[0-9]+/gi, '');
+}
+
+function getCommitHash() {
+    try {
+        const stdout = execSync('git rev-parse HEAD').toString().trim();
+        return stdout;
+    } catch (error) {
+        console.error('Error getting commit hash:', error);
+        return 'unknown';
+    }
 }
 
 wss.on('connection', (ws) => {
@@ -156,12 +175,20 @@ app.get('/dashboard', (req, res) => {
     res.sendFile(__dirname + '/dashboard/index.html');
 });
 
-app.post('/api/restart', auth, (req, res) => {
-    res.send('Restarting server...');
-    setTimeout(() => {
-        process.exit(0);
-    }, 1000);
-})
+app.post('/api/restart', auth, restart);
+
+app.post('/api/update', auth, (req, res) => {
+    // run a git pull to update the app
+    res.send('Updating server...');
+    exec('git pull', (error, stdout, stderr) => {
+        console.log(stdout);
+        console.log(stderr);
+        if (error !== null) {
+            console.log(`exec error: ${error}`);
+        }
+        restart(req, res);
+    });
+});
 
 app.post('/tts', (req, res) => {
     res.send('Text-to-speech endpoint');
@@ -198,6 +225,10 @@ app.post('/api/login', (req, res) => {
         const token = jwt.sign({ username: user.username }, secretKey, { expiresIn: '12h' });
         res.status(200).json({ token: token });
     });
+});
+
+app.get('/api/version', auth, (req, res) => {
+    res.status(200).json({ version: getCommitHash() });
 });
 
 app.get('/api/users', auth, (req, res) => {

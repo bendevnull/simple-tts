@@ -213,13 +213,41 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            if (Cookies.get('token')) {
-                document.getElementById('auth-form').style.display = 'none';
-                document.getElementById('dashboard').style.display = 'block';
-                loadUsers();
-                getVersion();
+        function checkToken() {
+            const token = Cookies.get('token');
+            if (token) {
+                const headers = new Headers();
+                headers.set('Authorization', 'Bearer ' + token);
+
+                fetch('/api/version', {
+                    headers: headers
+                })
+                .then(response => {
+                    if (response.ok) {
+                        document.getElementById('auth-form').style.display = 'none';
+                        document.getElementById('dashboard').style.display = 'block';
+                        loadUsers();
+                        getVersion();
+                    } else {
+                        Cookies.remove('token');
+                        document.getElementById('auth-form').style.display = 'block';
+                        document.getElementById('dashboard').style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Cookies.remove('token');
+                    document.getElementById('auth-form').style.display = 'block';
+                    document.getElementById('dashboard').style.display = 'none';
+                });
+            } else {
+                document.getElementById('auth-form').style.display = 'block';
+                document.getElementById('dashboard').style.display = 'none';
             }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkToken();
         });
     </script>
 </body>

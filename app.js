@@ -21,7 +21,7 @@ const ComfyJS = require("comfy.js");
 const jwt = require('jsonwebtoken');
 const secretKey = 'your_secret_key'; // Replace with your actual secret key
 
-const { exec } = require('child_process');
+const { exec, execSync } = require('child_process');
 
 var nowPlaying = null;
 

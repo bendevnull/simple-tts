@@ -296,10 +296,10 @@ server.listen(3000, () => {
                 generateTTS(`Awww, how wholesome! ${user} is now holding your hand, Ash!`);
                 break
             case "Drop It!":
-                generateTTS(`Ash, ${user} is making you drop your gun!`);
+                generateTTS(`${user} is making you drop your gun!`);
                 break
             case "Do A Gun Flip":
-                generateTTS(`Ash, ${user} is making you do a gun flip!`);
+                generateTTS(`${user} is making you do a gun flip!`);
                 break
         }
     };

@@ -293,7 +293,7 @@ server.listen(3000, () => {
                 generateTTS(`${user} would like to remind you to stretch! It's important to take breaks and stretch your muscles! Especially those forehead muscles!`);
                 break
             case "Hold ashgaming's hand":
-                generateTTS(`Awww, how wholesome! ${user} is now holding your hand, Ash!`);
+                generateTTS(`Awww, how wholesome! ${user} is now holding Ash's hand!!`);
                 break
             case "Drop It!":
                 generateTTS(`${user} is making you drop your gun!`);

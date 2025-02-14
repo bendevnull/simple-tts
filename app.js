@@ -298,6 +298,9 @@ server.listen(3000, () => {
             case "Drop It!":
                 generateTTS(`Ash, ${user} is making you drop your gun!`);
                 break
+            case "Do A Gun Flip":
+                generateTTS(`Ash, ${user} is making you do a gun flip!`);
+                break
         }
     };
 

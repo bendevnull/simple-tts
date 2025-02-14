@@ -270,10 +270,10 @@ app.post('/api/users', auth, (req, res) => {
     });
 });
 
-server.listen(3000, () => {
+server.listen(3000, async () => {
     console.log('Server started on http://localhost:3000');
     ComfyJS.Init(process.env.TWITCH_USER, process.env.TWITCH_TOKEN);
-    channelRewards = ComfyJS.GetChannelRewards(process.env.TWITCH_CLIENT_ID, false);
+    channelRewards = await ComfyJS.GetChannelRewards(process.env.TWITCH_CLIENT_ID, false);
 
     console.log(channelRewards);
 

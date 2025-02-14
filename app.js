@@ -275,8 +275,29 @@ server.listen(3000, () => {
 
     ComfyJS.onReward = (user, reward, cost, message, extra) => {
         console.log(`Reward: ${user} redeemed ${reward} for ${cost} with message: ${message}`);
-        if (reward == "TTS") {
-            generateTTS(message);
+        // if (reward == "TTS") {
+        //     generateTTS(message);
+        // }
+
+        switch(reward) {
+            case "TTS":
+                generateTTS(message);
+                break
+            case "Hydrate!":
+                generateTTS(`${user} would like to remind you that hydration is important! Make sure to drink water and stay hydrated!`);
+                break
+            case "Posture Check!":
+                generateTTS(`${user} would like to remind you to check your posture. Remember to sit up straight and take care of your back!`);
+                break
+            case "Streeeeeeeeeetch":
+                generateTTS(`${user} would like to remind you to stretch! It's important to take breaks and stretch your muscles! Especially those forehead muscles!`);
+                break
+            case "Hold ashgaming's hand":
+                generateTTS(`Awww, how wholesome! ${user} is now holding your hand, Ash!`);
+                break
+            case "Drop It!":
+                generateTTS(`Ash, ${user} is making you drop your gun!`);
+                break
         }
     };
 

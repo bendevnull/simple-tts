@@ -23,6 +23,7 @@ const secretKey = 'your_secret_key'; // Replace with your actual secret key
 
 const { exec, execSync } = require('child_process');
 
+var channelRewards;
 var nowPlaying = null;
 
 const queue = [];
@@ -272,6 +273,9 @@ app.post('/api/users', auth, (req, res) => {
 server.listen(3000, () => {
     console.log('Server started on http://localhost:3000');
     ComfyJS.Init(process.env.TWITCH_USER, process.env.TWITCH_TOKEN);
+    channelRewards = ComfyJS.GetChannelRewards(process.env.TWITCH_CLIENT_ID, false);
+
+    console.log(channelRewards);
 
     ComfyJS.onReward = (user, reward, cost, message, extra) => {
         console.log(`Reward: ${user} redeemed ${reward} for ${cost} with message: ${message}`);

@@ -172,8 +172,12 @@ wss.on('close', () => {
 
 app.use('/', express.static('static'));
 
-app.get('/dashboard', (req, res) => {
+app.get('/dashboard', auth, (req, res) => {
     res.sendFile(__dirname + '/dashboard/index.html');
+});
+
+app.get('/login', (req, res) => {
+    res.sendFile(__dirname + '/login.html');
 });
 
 app.post('/api/restart', auth, restart);
@@ -286,18 +290,18 @@ server.listen(3000, async () => {
             case "TTS":
                 generateTTS(message);
                 break
-            case "Hydrate!":
-                generateTTS(`${user} would like to remind you that hydration is important! Make sure to drink water and stay hydrated!`);
-                break
-            case "Posture Check!":
-                generateTTS(`${user} would like to remind you to check your posture. Remember to sit up straight and take care of your back!`);
-                break
-            case "Streeeeeeeeeetch":
-                generateTTS(`${user} would like to remind you to stretch! It's important to take breaks and stretch your muscles! Especially those forehead muscles!`);
-                break
-            case "Hold ashgaming's hand":
-                generateTTS(`Awww, how wholesome! ${user} is now holding Ash's hand!!`);
-                break
+            // case "Hydrate!":
+            //     generateTTS(`${user} would like to remind you that hydration is important! Make sure to drink water and stay hydrated!`);
+            //     break
+            // case "Posture Check!":
+            //     generateTTS(`${user} would like to remind you to check your posture. Remember to sit up straight and take care of your back!`);
+            //     break
+            // case "Streeeeeeeeeetch":
+            //     generateTTS(`${user} would like to remind you to stretch! It's important to take breaks and stretch your muscles! Especially those forehead muscles!`);
+            //     break
+            // case "Hold ashgaming's hand":
+            //     generateTTS(`Awww, how wholesome! ${user} is now holding Ash's hand!!`);
+            //     break
             case "Drop It!":
                 generateTTS(`${user} is making you drop your gun!`);
                 break
@@ -306,6 +310,8 @@ server.listen(3000, async () => {
                 break
         }
     };
+
+    ComfyJS.onFollow
 
     ComfyJS.onCheer = (user, message, bits, flags) => {
         console.log(`Cheer: ${user} cheered ${bits} bits with message: ${message}`);

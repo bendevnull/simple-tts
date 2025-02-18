@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .container {
+            text-align: center;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: #fff;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        input {
+            padding: 10px;
+            font-size: 16px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Login</h1>
+        <div id="auth-form">
+            <input type="text" id="username" placeholder="Username" onkeydown="submitOnEnter(event)">
+            <input type="password" id="password" placeholder="Password" onkeydown="submitOnEnter(event)">
+            <button onclick="login()">Login</button>
+        </div>
+    </div>
+
+    <script>
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username && password) {
+                const headers = new Headers();
+                headers.set('Content-Type', 'application/json');
+
+                fetch('/api/login', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({ username: username, password: password })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.token) {
+                        Cookies.set('token', data.token);
+                        window.location.href = '/dashboard';
+                    } else {
+                        alert('Invalid username or password.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred.');
+                });
+            } else {
+                alert('Please enter both username and password.');
+            }
+        }
+
+        function submitOnEnter(event) {
+            if (event.key === 'Enter') {
+                login();
+            }
+        }
+
+        function checkToken() {
+            const token = Cookies.get('token');
+            if (token) {
+                const headers = new Headers();
+                headers.set('Authorization', 'Bearer ' + token);
+
+                fetch('/api/version', {
+                    headers: headers
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = '/dashboard';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Cookies.remove('token');
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkToken();
+        });
+    </script>
+</body>
+</html>

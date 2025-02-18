@@ -178,7 +178,7 @@ app.get('/dashboard', auth, (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-    res.sendFile(__dirname + '/login.html');
+    res.sendFile(__dirname + '/dashboard/login.html');
 });
 
 app.post('/api/restart', auth, restart);

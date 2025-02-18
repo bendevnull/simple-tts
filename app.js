@@ -79,8 +79,7 @@ function processQueue() {
 function auth(req, res, next) {
     const authHeader = req.headers['authorization'];
     if (!authHeader) {
-        // redirect to login
-        return res.redirect('/login');
+        return res.status(401).send('Authentication required.');
     }
 
     const token = authHeader.split(' ')[1];
@@ -173,12 +172,8 @@ wss.on('close', () => {
 
 app.use('/', express.static('static'));
 
-app.get('/dashboard', auth, (req, res) => {
-    res.sendFile(__dirname + '/dashboard/index.html');
-});
-
-app.get('/login', (req, res) => {
-    res.sendFile(__dirname + '/dashboard/login.html');
+app.get('/dashboard', (req, res) => {
+    res.sendFile(__dirname + '/dashboard/dashboard.html');
 });
 
 app.post('/api/restart', auth, restart);

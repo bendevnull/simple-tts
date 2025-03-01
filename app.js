@@ -10,10 +10,16 @@ const fs = require('fs');
 
 const gtts = require('gtts');
 
-const { createServer } = require('http');
+const { createServer } = require('https');
 const { WebSocketServer } = require('ws');
 
-const server = createServer(app);
+const ssl = {
+    key: fs.readFileSync('ssl/privkey.pem', 'utf-8'),
+    cert: fs.readFileSync('ssl/cert.pem', 'utf-8'),
+    ca: fs.readFileSync('ssl/chain.pem', 'utf-8')
+};
+
+const server = createServer(ssl, app);
 const wss = new WebSocketServer({ server });
 
 const ComfyJS = require("comfy.js");
@@ -358,7 +364,7 @@ app.get('/auth/twitch/callback', async (req, res) => {
     res.redirect('/dashboard');
 });
 
-server.listen(3000, async () => {
+server.listen(443, async () => {
     console.log(`Server started on ${process.env.REDIRECT_HOST}`);
     ComfyJS.Init(config.twitchUser, config.twitchToken);
 

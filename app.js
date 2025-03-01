@@ -350,22 +350,27 @@ app.get('/auth/twitch/callback', async (req, res) => {
 });
 
 app.post('/auth/twitch/callback', async (req, res) => {
-    console.log(req.body)
-    const token = req.body.token;
+    let body = '';
+    req.on('data', chunk => {
+        body += chunk.toString();
+    });
+    req.on('end', async () => {
+        const token = req.body.token;
 
-    if (!token) {
-        return res.status(400).send('Token is required');
-    }
+        if (!token) {
+            return res.status(400).send('Token is required');
+        }
 
-    console.log(`Received token: ${token}`);
+        console.log(`Received token: ${token}`);
 
-    const channelName = await getChannelName(token);
+        const channelName = await getChannelName(token);
 
-    if (!channelName) {
-        return res.status(500).send('Failed to get channel name');
-    }
+        if (!channelName) {
+            return res.status(500).send('Failed to get channel name');
+        }
 
-    console.log(`Authenticated as ${channelName}`);
+        console.log(`Authenticated as ${channelName}`);
+    });
 });
 
 server.listen(3000, async () => {

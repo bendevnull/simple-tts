@@ -374,7 +374,7 @@ app.get('/auth/twitch/callback', async (req, res) => {
 
 server.listen(3000, async () => {
     console.log(`Server started on ${process.env.REDIRECT_HOST}`);
-    ComfyJS.Init(config.twitchUser, config.twitchToken);
+    ComfyJS.Init(config.twitchUser, "oauth:" + config.twitchToken);
     console.log(config.twitchUser, config.twitchToken);
 
     console.log(channelRewards);

@@ -1,5 +1,5 @@
 function socketConnect() {
-    let ws = new WebSocket(`ws://${window.location.host}`);
+    let ws = new WebSocket(`wss://${window.location.host}`);
     let pingInterval = null;
     let pingTimeout = null;
     let inPing = false;

@@ -375,7 +375,7 @@ app.post('/auth/twitch/callback', async (req, res) => {
         config.twitchToken = token;
         fs.writeFileSync('twitch_config.json', JSON.stringify(config, null, 4));
 
-        res.status(200).send('Authenticated successfully');
+        res.status(200).json({ channel: channelName });
     });
 });
 

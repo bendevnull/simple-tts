@@ -296,7 +296,7 @@ app.post('/api/users', auth, (req, res) => {
 });
 
 app.get('/auth/twitch', async (req, res) => {
-    res.redirect(`https://id.twitch.tv/oauth2/authorize?client_id=${process.env.TWITCH_CLIENT_ID}&redirect_uri=${process.env.REDIRECT_HOST}/auth/twitch/callback&response_type=token&scope=channel:read:redemptions+user:read:email`);
+    res.redirect(`https://id.twitch.tv/oauth2/authorize?client_id=${process.env.TWITCH_CLIENT_ID}&redirect_uri=${process.env.REDIRECT_HOST}/auth/twitch/callback&response_type=code&scope=channel:read:redemptions+user:read:email`);
 });
 
 async function getToken(code) {
@@ -345,7 +345,22 @@ async function getChannelName(token) {
 }
 
 app.get('/auth/twitch/callback', async (req, res) => {
-    console.log(req.query);
+    const code = req.query.code;
+    console.log('Code: ', code);
+    const token = await getToken(code);
+    const channelName = await getChannelName(token);
+
+    if (!token) {
+        console.error('Failed to get token.');
+        return res.status(500).send('Failed to get token.');
+    }
+
+    if (!channelName) {
+        console.error('Failed to get channel name.');
+        return res.status(500).send('Failed to get channel name.');
+    }
+
+    channelRewards = rewards;
     res.redirect('/dashboard');
 });
 

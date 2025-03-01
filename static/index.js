@@ -41,7 +41,7 @@ function socketConnect() {
                         console.error('Your browser does not support MP3 audio');
                     }
 
-                    const url = `http://${window.location.host}/${value}`;
+                    const url = `https://${window.location.host}/${value}`;
                     audio.src = url;
                     audio.play();
                     audio.onended = () => {

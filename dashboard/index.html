@@ -32,6 +32,19 @@
         button:hover {
             background-color: #0056b3;
         }
+        a.button {
+            text-decoration: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: #fff;
+        }
+        a.button:hover {
+            background-color: #0056b3;
+        }
         input {
             padding: 10px;
             font-size: 16px;
@@ -69,7 +82,7 @@
             <button onclick="restart()">Restart</button>
             <button onclick="updateAndRestart()">Update and Restart</button>
             <!-- twitch oauth login button -->
-            <a href="/auth/twitch"><button>Twitch Login</button></a>
+            <a href="/auth/twitch" class="button">Twitch Login</a>
             <div class="user-management">
                 <h2>User Management</h2>
                 <input type="text" id="new-username" placeholder="New Username">

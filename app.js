@@ -355,7 +355,7 @@ app.post('/auth/twitch/callback', async (req, res) => {
         body += chunk.toString();
     });
     req.on('end', async () => {
-        const token = req.body.token;
+        const { token } = JSON.parse(body);
 
         if (!token) {
             return res.status(400).send('Token is required');

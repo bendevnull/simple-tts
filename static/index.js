@@ -30,32 +30,42 @@ function socketConnect() {
     
     ws.onmessage = (message) => {
         JSON.parse(message.data, (key, value) => {
-            if (key === 'audio') {
-                console.log('Received audio from the server');
+            switch(key) {
+                case "audio":
+                    console.log('Received audio from the server');
 
-                const audio = new Audio();
-                document.body.appendChild(audio);
+                    const audio = new Audio();
+                    document.body.appendChild(audio);
 
-                if (!audio.canPlayType('audio/mpeg')) {
-                    console.error('Your browser does not support MP3 audio');
-                }
+                    if (!audio.canPlayType('audio/mpeg')) {
+                        console.error('Your browser does not support MP3 audio');
+                    }
 
-                const url = `http://${window.location.host}/${value}`;
-                audio.src = url;
-                audio.play();
-                audio.onended = () => {
-                    // remove audio element
-                    
-    
-                    // send ended message to server
-                    ws.send(JSON.stringify({ ended: value }));
-                    audio.onended = null;
-                }
-            } else if (key === 'pong') {
-                // we're still connected
-                inPing = false;
-                clearTimeout(pingTimeout);
-                console.log('Pong received');
+                    const url = `http://${window.location.host}/${value}`;
+                    audio.src = url;
+                    audio.play();
+                    audio.onended = () => {
+                        // send ended message to server
+                        ws.send(JSON.stringify({ ended: value }));
+                        audio.onended = null;
+                    }
+                    break;
+                case "pong":
+                    // we're still connected
+                    inPing = false;
+                    clearTimeout(pingTimeout);
+                    console.log('Pong received');
+                    break;
+                case "stop":
+                    console.log('Received stop command');
+                    if (audio) {
+                        audio.pause();
+                    }
+                    break;
+                case "refresh":
+                    console.log('Received refresh command');
+                    location.reload();
+                    break;
             }
         });
     }
@@ -66,17 +76,17 @@ function socketConnect() {
     }
 }
 
-// async function testTTS(text) {
-//     // post to /tts endpoint
-//     await fetch('/tts', {
-//         method: 'POST',
-//         body: text
-//     }).then((response) => {
-//         console.log('Text-to-speech request sent');
-//     }).catch((error) => {
-//         console.error(error);
-//     });
-// }
+async function testTTS(text) {
+    // post to /tts endpoint
+    await fetch('/tts', {
+        method: 'POST',
+        body: text
+    }).then((response) => {
+        console.log('Text-to-speech request sent');
+    }).catch((error) => {
+        console.error(error);
+    });
+}
 
 // async function testMassTTS(textArray) {
 //     for (let text of textArray) {

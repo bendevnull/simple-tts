@@ -23,6 +23,25 @@ const secretKey = 'your_secret_key'; // Replace with your actual secret key
 
 const { exec, execSync } = require('child_process');
 
+function loadConfig(file) {
+    if (!fs.existsSync(file)) {
+        const DEFAULT_CONFIG = {
+            twitchUser: "",
+            twitchToken: "",
+        }
+
+        fs.writeFileSync(file, JSON.stringify(DEFAULT_CONFIG, null, 4))
+        return DEFAULT_CONFIG
+    }
+
+    return JSON.parse(fs.readFileSync(file))
+}
+
+const config = loadConfig("twitch_config.json")
+
+// const passport = require('passport');
+// const OAuth2Strategy = require('passport-oauth').OAuth2Strategy;
+
 var channelRewards;
 var nowPlaying = null;
 
@@ -270,9 +289,78 @@ app.post('/api/users', auth, (req, res) => {
     });
 });
 
+app.get('/auth/twitch', async (req, res) => {
+    res.redirect(`https://id.twitch.tv/oauth2/authorize?client_id=${process.env.TWITCH_CLIENT_ID}&redirect_uri=${process.env.REDIRECT_HOST}/auth/twitch/callback&response_type=code&scope=channel:read:redemption`);
+});
+
+async function getToken(code) {
+    const response = await fetch('https://id.twitch.tv/oauth2/token', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            client_id: process.env.TWITCH_CLIENT_ID,
+            client_secret: process.env.TWITCH_CLIENT_SECRET,
+            code: code,
+            grant_type: 'authorization_code',
+            redirect_uri: `${process.env.REDIRECT_HOST}/auth/twitch/callback`
+        })
+    });
+
+    if (!response.ok) {
+        console.error('Failed to get token:', response.statusText);
+        return null;
+    }
+
+    const data = await response.json();
+    return data.access_token;
+}
+
+async function getChannelName(token) {
+    const response = await fetch('https://api.twitch.tv/helix/users', {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Client-Id': process.env.TWITCH_CLIENT_ID
+        }
+    });
+
+    if (!response.ok) {
+        console.error('Failed to fetch channel name:', response.statusText);
+        return null;
+    }
+
+    const data = await response.json();
+    if (data.data && data.data.length > 0) {
+        return data.data[0].display_name;
+    }
+
+    return null;
+}
+
+app.get('/auth/twitch/callback', async (req, res) => {
+    const code = req.query.code;
+    const token = await getToken(code);
+    const channelName = await getChannelName(token);
+
+    if (!token) {
+        console.error('Failed to get token.');
+        return res.status(500).send('Failed to get token.');
+    }
+
+    if (!channelName) {
+        console.error('Failed to get channel name.');
+        return res.status(500).send('Failed to get channel name.');
+    }
+
+    channelRewards = rewards;
+    res.redirect('/dashboard');
+});
+
 server.listen(3000, async () => {
-    console.log('Server started on http://localhost:3000');
-    ComfyJS.Init(process.env.TWITCH_USER, process.env.TWITCH_TOKEN);
+    console.log(`Server started on ${process.env.REDIRECT_HOST}`);
+    ComfyJS.default.Init(config.twitchUser, config.twitchToken);
 
     console.log(channelRewards);
 

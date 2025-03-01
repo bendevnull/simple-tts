@@ -361,7 +361,9 @@ app.get('/auth/twitch/callback', async (req, res) => {
         return res.status(500).send('Failed to get channel name.');
     }
 
-    channelRewards = rewards;
+    console.log('Token: ', token);
+    console.log('Channel Name: ', channelName);
+
     res.redirect('/dashboard');
 });
 

@@ -307,6 +307,7 @@ async function getToken(code) {
         },
         body: JSON.stringify({
             client_id: process.env.TWITCH_CLIENT_ID,
+            client_secret: process.env.TWITCH_CLIENT_SECRET,
             code: code,
             grant_type: 'authorization_code',
             redirect_uri: `${process.env.REDIRECT_HOST}/auth/twitch/callback`

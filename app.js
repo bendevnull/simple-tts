@@ -370,6 +370,12 @@ app.post('/auth/twitch/callback', async (req, res) => {
         }
 
         console.log(`Authenticated as ${channelName}`);
+
+        config.twitchUser = channelName;
+        config.twitchToken = token;
+        fs.writeFileSync('twitch_config.json', JSON.stringify(config, null, 4));
+
+        res.status(200).send('Authenticated successfully');
     });
 });
 

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitch OAuth Callback</title>
+</head>
+<body>
+    <script>
+        // Extract the hash from the URL
+        const hash = window.location.hash.substring(1);
+        const params = new URLSearchParams(hash);
+        const token = params.get('access_token');
+
+        if (token) {
+            // Send the token to the server
+            fetch('/auth/twitch/callback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ token: token })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                // Redirect to the dashboard or handle success
+                window.location.href = '/dashboard';
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        } else {
+            console.error('No token found in URL');
+        }
+    </script>
+</body>
+</html>

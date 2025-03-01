@@ -296,7 +296,7 @@ app.post('/api/users', auth, (req, res) => {
 });
 
 app.get('/auth/twitch', async (req, res) => {
-    res.redirect(`https://id.twitch.tv/oauth2/authorize?client_id=${process.env.TWITCH_CLIENT_ID}&redirect_uri=${process.env.REDIRECT_HOST}/auth/twitch/callback&response_type=code&scope=channel:read:redemptions+user:read:email+user:read:chat+user:write:chat+channel:moderate+channel:read:subscriptions`);
+    res.redirect(`https://id.twitch.tv/oauth2/authorize?client_id=${process.env.TWITCH_CLIENT_ID}&redirect_uri=${process.env.REDIRECT_HOST}/auth/twitch/callback&response_type=token&scope=channel:read:redemptions+user:read:email+user:read:chat+user:write:chat+channel:moderate+channel:read:subscriptions`);
 });
 
 async function getToken(code) {
@@ -346,30 +346,25 @@ async function getChannelName(token) {
 }
 
 app.get('/auth/twitch/callback', async (req, res) => {
-    const code = req.query.code;
-    console.log('Code: ', code);
-    const token = await getToken(code);
-    const channelName = await getChannelName(token);
+    res.sendFile(__dirname + '/dashboard/callback.html');
+});
+
+app.post('/auth/twitch/callback', async (req, res) => {
+    const token = req.body.token;
 
     if (!token) {
-        console.error('Failed to get token.');
-        return res.status(500).send('Failed to get token.');
+        return res.status(400).send('Token is required');
     }
+
+    console.log(`Received token: ${token}`);
+
+    const channelName = await getChannelName(token);
 
     if (!channelName) {
-        console.error('Failed to get channel name.');
-        return res.status(500).send('Failed to get channel name.');
+        return res.status(500).send('Failed to get channel name');
     }
 
-    console.log('Token: ', token);
-    console.log('Channel Name: ', channelName);
-
-    config.twitchUser = channelName;
-    config.twitchToken = token;
-
-    fs.writeFileSync("twitch_config.json", JSON.stringify(config, null, 4));
-
-    res.redirect('/dashboard');
+    console.log(`Authenticated as ${channelName}`);
 });
 
 server.listen(3000, async () => {

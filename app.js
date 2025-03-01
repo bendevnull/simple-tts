@@ -314,7 +314,7 @@ async function getToken(code) {
     });
 
     if (!response.ok) {
-        console.error('Failed to get token:', response.statusText);
+        console.error('Failed to get token:', response);
         return null;
     }
 

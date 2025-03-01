@@ -350,6 +350,7 @@ app.get('/auth/twitch/callback', async (req, res) => {
 });
 
 app.post('/auth/twitch/callback', async (req, res) => {
+    console.log(req.body)
     const token = req.body.token;
 
     if (!token) {

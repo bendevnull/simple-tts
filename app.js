@@ -364,6 +364,11 @@ app.get('/auth/twitch/callback', async (req, res) => {
     console.log('Token: ', token);
     console.log('Channel Name: ', channelName);
 
+    config.twitchUser = channelName;
+    config.twitchToken = token;
+
+    fs.writeFileSync("twitch_config.json", JSON.stringify(config, null, 4));
+
     res.redirect('/dashboard');
 });
 
